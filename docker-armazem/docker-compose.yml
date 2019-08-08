@@ -1,20 +1,27 @@
+version: '3.1'
+services: 
  web:
     image: navidonskis/nginx-php5.6
     container_name: web
     restart: always
+    depends_on: 
+      - db
+      - adminer
     volumes:
-      # 1. mount your workdir path
       - ../app/:/var/www
-      # 2. mount your configuration of site
       - ./sites-enabled:/etc/nginx/sites-enabled
-      # 3. if you have settings for ssmtp
-      #- /mnt/docker/nginx/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
-      # 4. if you want to override php.ini file
-      #- /mnt/docker/php/custom.ini:/etc/php/5.6/fpm/conf.d/custom.ini
-    # 5. have a cronjob tasks? run the command...
-    #command:
-      # remember to escape variables dollar sign with duplication $$ instead $
-      #- '* * * * * echo "Hello $$(date)" >> /var/log/cron.log 2>&1'
-      #- '* * * * * echo "Hello world !" >> /var/log/cron.log 2>&1'
     ports: 
       - "80:80"
+ db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: root
+    depends_on: 
+      - adminer
+ adminer:
+    image: adminer
+    restart: always
+    ports: 
+      - 8080:8080
